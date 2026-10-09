@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #02040a;
+  color: #f8fafc;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Cosmic Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #02040a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #17358e;
+  border-radius: 4px;
+  border: 1px solid rgba(44, 103, 237, 0.4);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2c67ed;
+  box-shadow: 0 0 10px #2c67ed;
+}
+
+/* Cosmic Glow Utilities */
+.text-glow-blue {
+  text-shadow: 0 0 20px rgba(44, 103, 237, 0.7);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 20px rgba(0, 210, 255, 0.7);
+}
+
+.box-glow-blue {
+  box-shadow: 0 0 25px rgba(44, 103, 237, 0.5), inset 0 0 15px rgba(44, 103, 237, 0.2);
+}
+
+    /* ===== SPANDUK (BANNER) BERJALAN MENYILANG ===== */
+    .banner-stage {
+      position: relative;
+      height: 230px;
+      overflow: hidden;
+      z-index: 15;
+      margin-top: -3rem;
+    }
+    .banner-strip {
+      position: absolute;
+      left: -10vw;
+      width: 120vw;
+      top: 50%;
+      height: 74px;
+      margin-top: -37px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      border-top: 3px solid #02040a;
+      border-bottom: 3px solid #02040a;
+      box-shadow: 0 0 30px rgba(44, 103, 237, 0.45);
+    }
+    .banner-strip.strip-a { background: #2c67ed; transform: rotate(-3.5deg); z-index: 1; }
+    .banner-strip.strip-b { background: #7c66c8; transform: rotate(3.5deg); z-index: 2; box-shadow: 0 0 30px rgba(168, 85, 247, 0.4); }
+    .banner-track {
+      display: flex;
+      align-items: center;
+      width: max-content;
+      will-change: transform;
+    }
+    .banner-strip.strip-a .banner-track { animation: banner-ltr 28s linear infinite; }  /* kiri -> kanan */
+    .banner-strip.strip-b .banner-track { animation: banner-rtl 28s linear infinite; }  /* kanan -> kiri */
+    .banner-item {
+      font-family: 'Syne', 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 1.7rem;
+      color: #050a1c;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+      padding: 0 1.6rem;
+    }
+    .banner-star { color: #050a1c; font-size: 1.5rem; line-height: 1; }
+    @keyframes banner-ltr { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+    @keyframes banner-rtl { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @media (max-width: 640px) {
+      .banner-stage { height: 190px; }
+      .banner-strip { height: 58px; margin-top: -29px; }
+      .banner-item { font-size: 1.2rem; padding: 0 1rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .banner-track { animation-duration: 120s !important; }
+    }

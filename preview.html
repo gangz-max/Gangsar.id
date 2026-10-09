@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="id" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gangsar Wijaya - Personal Portfolio | Dark Space Edition</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            space: {
+              darkest: '#02040a',
+              darker: '#060b1e',
+              glow: '#2c67ed',
+              cyan: '#00d2ff',
+            },
+            primary: {
+              DEFAULT: '#2c67ed',
+              500: '#2c67ed',
+              600: '#1d4fd8',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+            mono: ['Fira Code', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 & Babel & Lucide & Framer Motion CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background-color: #02040a;
+      color: #f8fafc;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #02040a; }
+    ::-webkit-scrollbar-thumb { background: #17358e; border-radius: 4px; border: 1px solid rgba(44, 103, 237, 0.4); }
+    ::-webkit-scrollbar-thumb:hover { background: #2c67ed; box-shadow: 0 0 10px #2c67ed; }
+
+    /* ===== SPANDUK (BANNER) BERJALAN MENYILANG ===== */
+    .banner-stage {
+      position: relative;
+      height: 230px;
+      overflow: hidden;
+      z-index: 15;
+      margin-top: -3rem;
+    }
+    .banner-strip {
+      position: absolute;
+      left: -10vw;
+      width: 120vw;
+      top: 50%;
+      height: 74px;
+      margin-top: -37px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      border-top: 3px solid #02040a;
+      border-bottom: 3px solid #02040a;
+      box-shadow: 0 0 30px rgba(44, 103, 237, 0.45);
+    }
+    .banner-strip.strip-a { background: #2c67ed; transform: rotate(-3.5deg); z-index: 1; }
+    .banner-strip.strip-b { background: #7c66c8; transform: rotate(3.5deg); z-index: 2; box-shadow: 0 0 30px rgba(168, 85, 247, 0.4); }
+    .banner-track {
+      display: flex;
+      align-items: center;
+      width: max-content;
+      will-change: transform;
+    }
+    .banner-strip.strip-a .banner-track { animation: banner-ltr 28s linear infinite; }  /* kiri -> kanan */
+    .banner-strip.strip-b .banner-track { animation: banner-rtl 28s linear infinite; }  /* kanan -> kiri */
+    .banner-item {
+      font-family: 'Syne', 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 1.7rem;
+      color: #050a1c;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+      padding: 0 1.6rem;
+    }
+    .banner-star { color: #050a1c; font-size: 1.5rem; line-height: 1; }
+    @keyframes banner-ltr { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+    @keyframes banner-rtl { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @media (max-width: 640px) {
+      .banner-stage { height: 190px; }
+      .banner-strip { height: 58px; margin-top: -29px; }
+      .banner-item { font-size: 1.2rem; padding: 0 1rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .banner-track { animation-duration: 120s !important; }
+    }
+  </style>
+</head>
+<body class="bg-[#02040a] text-slate-100 antialiased selection:bg-[#2c67ed] selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    const { motion, AnimatePresence } = window.Motion || window.framerMotion || { motion: { div: 'div', nav: 'nav', h1: 'h1', p: 'p', span: 'span' }, AnimatePresence: ({children}) => children };
+
+    // Data Store
+    const personalInfo = {
+      name: "Gangsar Wijaya",
+      roles: ["Junior Developer", "Tech Enthusiast", "Frontend Specialist", "Fullstack Explorer"],
+      bio: "Seorang pengembang web yang antusias menjelajahi teknologi modern, berfokus pada pembangunan antarmuka web interaktif, responsif, dan performan tinggi dengan nuansa visual kosmik yang memukau.",
+      tagline: "Membangun Pengalaman Digital yang Menembus Batas Gravitasi.",
+      location: "Indonesia",
+      email: "gangsar.wijaya.dev@gmail.com",
+      socials: {
+        github: "https://github.com",
+        linkedin: "https://linkedin.com",
+        instagram: "https://instagram.com",
+        twitter: "https://twitter.com",
+        discord: "https://discord.com",
+      },
+      stats: [
+        { label: "Projects Completed", value: "20+" },
+        { label: "Happy Collaborations", value: "12+" },
+        { label: "Git Commits / Year", value: "650+" },
+        { label: "Tech Stack Mastered", value: "15+" }
+      ],
+      education: [
+        {
+          degree: "S1 Teknik Informatika / Ilmu Komputer",
+          institution: "Universitas Terkemuka Indonesia",
+          period: "2021 - 2025",
+          description: "Fokus pada Rekayasa Perangkat Lunak, Struktur Data & Algoritma, Web Development, dan Cloud Computing.",
+          gpa: "3.85 / 4.00",
+          highlight: "Ketua Divisi Web Development Club Kampus"
+        },
+        {
+          degree: "Jurusan Teknik komputer danjaringan / SMK",
+          institution: "SMKN 1 PUNGGING MOJOKERTO",
+          period: "2025 - SEKARANG",
+          description: "Mempelajari logika pemrograman, algoritma dasar, HTML/CSS/JS, dan database SQL.",
+          gpa: "Lulusan Terbaik",
+          highlight: "Juara Lomba Desain Web & Algoritma Siswa"
+        },
+        {
+          degree: "Bootcamp Fullstack Web Development",
+          institution: "Nama Bootcamp / Kursus Online",
+          period: "2023 - 2024",
+          description: "Mendalami React, Node.js, REST API, dan Git melalui proyek nyata serta code review mentor.",
+          gpa: "Lulus dengan Predikat Sangat Baik",
+          highlight: "Proyek Capstone Terbaik Angkatan"
+        },
+        {
+          degree: "Sekolah Menengah Pertama (SMP)",
+          institution: "SMP Negeri Nama Sekolah",
+          period: "2022 - 2025",
+          description: "Mengenal komputer dasar, Microsoft Office, dan mulai tertarik membuat website sederhana.",
+          gpa: "Peringkat 3 Besar",
+          highlight: "Anggota Ekstrakurikuler Komputer"
+        },
+        {
+          degree: "Sekolah Dasar (SD)",
+          institution: "SD Negeri Nama Sekolah",
+          period: "2016 - 2022",
+          description: "Membangun fondasi belajar: membaca, berhitung, dan logika dasar serta rasa ingin tahu pada teknologi.",
+          gpa: "Lulus dengan Nilai Baik",
+          highlight: "Juara Lomba Cerdas Cermat Sekolah"
+        }
+      ],
+      experience: [
+        {
+          role: "Junior Web Developer",
+          company: "Digital Inovasi Solusindo",
+          period: "2023 - 2024",
+          type: "Internship / Contract",
+          description: "Mengembangkan komponen frontend modular menggunakan React.js dan Tailwind CSS, integrasi REST API, dan optimasi load time sebesar 40%.",
+          technologies: ["React", "Tailwind CSS", "REST API", "Git", "Figma"]
+        },
+        {
+          role: "Frontend Developer & UI Designer",
+          company: "Freelance Projects",
+          period: "2022 - Sekarang",
+          type: "Freelance",
+          description: "Merancang dan membangun 15+ website kustom untuk klien UMKM dan portofolio dengan animasi smooth dan visual modern.",
+          technologies: ["React", "Next.js", "Tailwind CSS", "Framer Motion", "Vite"]
+        }
+      ],
+      projects: [
+        {
+          id: "nebula-store",
+          title: "Nebula E-Commerce Platform",
+          category: "Web App",
+          description: "Platform e-commerce modern dengan fitur katalog interaktif, real-time cart, simulasi checkout, dan dashboard dark mode.",
+          tags: ["React", "Tailwind CSS", "Redux", "Node.js"],
+          image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80",
+          demoUrl: "https://demo-ecommerce.example.com",
+          githubUrl: "https://github.com"
+        },
+        {
+          id: "astro-dashboard",
+          title: "Cosmic SaaS Analytics Dashboard",
+          category: "Web App",
+          description: "Dashboard analitik interaktif dengan chart visualisasi data, metrik real-time, dan export report.",
+          tags: ["React", "Framer Motion", "Chart.js", "Tailwind CSS"],
+          image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
+          demoUrl: "https://demo-dashboard.example.com",
+          githubUrl: "https://github.com"
+        },
+        {
+          id: "ai-prompt-orbit",
+          title: "Orbit AI Prompt Studio",
+          category: "Web App",
+          description: "Aplikasi pengelola prompt AI bertenaga LLM dengan preset template, copy instan, dan dark interstellar UI.",
+          tags: ["React", "Tailwind CSS", "OpenAI API", "Framer Motion"],
+          image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
+          demoUrl: "https://demo-ai.example.com",
+          githubUrl: "https://github.com"
+        },
+        {
+          id: "crypto-nova",
+          title: "Nova Crypto & Token Tracker",
+          category: "Mobile/UI",
+          description: "Pemantau harga cryptocurrency real-time dengan grafik candle stick dan simulator portofolio.",
+          tags: ["React Native / Web", "Tailwind CSS", "API"],
+          image: "https://images.unsplash.com/photo-1622979135225-d2ba269bc1df?w=800&auto=format&fit=crop&q=80",
+          demoUrl: "https://demo-crypto.example.com",
+          githubUrl: "https://github.com"
+        }
+      ],
+      certificates: [
+        {
+          id: "cert-1",
+          title: "Frontend Developer Expert (React & State Management)",
+          issuer: "Dicoding Indonesia & Kemendikbud",
+          issueDate: "Desember 2023",
+          credentialId: "DCD-FE-88921-X9",
+          skills: ["React.js", "Redux", "Clean Architecture", "PWA", "Automation Testing"],
+          image: "https://images.unsplash.com/photo-1589330694653-ded6df03f754?w=800&auto=format&fit=crop&q=80"
+        },
+        {
+          id: "cert-2",
+          title: "Meta Certified Front-End Developer Specialization",
+          issuer: "Meta / Coursera",
+          issueDate: "Oktober 2023",
+          credentialId: "COURSERA-META-7482",
+          skills: ["React Advanced", "JavaScript ES6+", "UI/UX Principles", "Jest Testing"],
+          image: "https://images.unsplash.com/photo-1523289333742-be1143f6b766?w=800&auto=format&fit=crop&q=80"
+        },
+        {
+          id: "cert-3",
+          title: "Fullstack Web Development Bootcamp",
+          issuer: "Alibaba Cloud & Digitalent Kominfo",
+          issueDate: "Juli 2023",
+          credentialId: "KOMINFO-DTS-99014",
+          skills: ["Node.js", "Express.js", "MongoDB", "Tailwind CSS"],
+          image: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=800&auto=format&fit=crop&q=80"
+        }
+      ],
+      techStack: [
+        {
+          category: "Frontend Development",
+          description: "Membangun tampilan antarmuka interaktif, cepat, dan responsif.",
+          items: [
+            { name: "React.js", level: "Advanced", color: "#61DAFB", proficiency: 92 },
+            { name: "Tailwind CSS", level: "Expert", color: "#38BDF8", proficiency: 95 },
+            { name: "JavaScript (ES6+)", level: "Advanced", color: "#F7DF1E", proficiency: 90 },
+            { name: "TypeScript", level: "Intermediate", color: "#3178C6", proficiency: 80 },
+            { name: "Framer Motion", level: "Advanced", color: "#FF0055", proficiency: 88 }
+          ]
+        },
+        {
+          category: "Backend & Database",
+          description: "Server logic, REST APIs, and database structures.",
+          items: [
+            { name: "Node.js", level: "Intermediate", color: "#339933", proficiency: 80 },
+            { name: "Express.js", level: "Intermediate", color: "#AAAAAA", proficiency: 78 },
+            { name: "PostgreSQL", level: "Intermediate", color: "#4169E1", proficiency: 75 },
+            { name: "RESTful API", level: "Advanced", color: "#2c67ed", proficiency: 88 }
+          ]
+        },
+        {
+          category: "Tools & DevOps",
+          description: "Workflow tools, testing, and modern UI design.",
+          items: [
+            { name: "Git & GitHub", level: "Advanced", color: "#F05032", proficiency: 92 },
+            { name: "VS Code", level: "Expert", color: "#007ACC", proficiency: 96 },
+            { name: "Figma (UI/UX)", level: "Advanced", color: "#F24E1E", proficiency: 85 },
+            { name: "Vite", level: "Advanced", color: "#646CFF", proficiency: 90 }
+          ]
+        }
+      ]
+    };
+
+    // Component: Space Canvas
+    function SpaceBackground() {
+      const canvasRef = useRef(null);
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
+        let width = (canvas.width = window.innerWidth);
+        let height = (canvas.height = window.innerHeight);
+
+        const handleResize = () => {
+          width = canvas.width = window.innerWidth;
+          height = canvas.height = window.innerHeight;
+        };
+        window.addEventListener('resize', handleResize);
+
+        const starCount = Math.min(Math.floor((width * height) / 4500), 200);
+        const stars = Array.from({ length: starCount }, () => ({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          size: Math.random() * 1.8 + 0.4,
+          alpha: Math.random() * 0.8 + 0.2,
+          speed: Math.random() * 0.02 + 0.005,
+          color: Math.random() > 0.3 ? '#ffffff' : Math.random() > 0.5 ? '#8eb6fd' : '#00d2ff'
+        }));
+
+        const meteors = [];
+        const createMeteor = () => {
+          meteors.push({
+            x: Math.random() * width * 1.2,
+            y: Math.random() * (height * 0.4),
+            length: Math.random() * 70 + 40,
+            speed: Math.random() * 9 + 6,
+            angle: Math.PI / 4,
+            opacity: 1,
+            fadeSpeed: 0.015,
+            color: Math.random() > 0.5 ? '#2c67ed' : '#00d2ff'
+          });
+        };
+
+        let timer = 0;
+        const render = () => {
+          ctx.clearRect(0, 0, width, height);
+
+          // Cosmic gradient
+          const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+          bgGrad.addColorStop(0, '#02040a');
+          bgGrad.addColorStop(0.5, '#050c1e');
+          bgGrad.addColorStop(1, '#02040a');
+          ctx.fillStyle = bgGrad;
+          ctx.fillRect(0, 0, width, height);
+
+          // Stars
+          stars.forEach(s => {
+            s.alpha += s.speed;
+            if (s.alpha > 1 || s.alpha < 0.2) s.speed = -s.speed;
+            ctx.fillStyle = s.color;
+            ctx.globalAlpha = Math.max(0, Math.min(1, s.alpha));
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            ctx.fill();
+          });
+
+          // Meteors
+          timer++;
+          if (timer > 100 && Math.random() < 0.04) {
+            createMeteor();
+            timer = 0;
+          }
+
+          for (let i = meteors.length - 1; i >= 0; i--) {
+            const m = meteors[i];
+            m.x += Math.cos(m.angle) * m.speed;
+            m.y += Math.sin(m.angle) * m.speed;
+            m.opacity -= m.fadeSpeed;
+            if (m.opacity <= 0) { meteors.splice(i, 1); continue; }
+
+            const tailX = m.x - Math.cos(m.angle) * m.length;
+            const tailY = m.y - Math.sin(m.angle) * m.length;
+            const grad = ctx.createLinearGradient(m.x, m.y, tailX, tailY);
+            grad.addColorStop(0, `rgba(255, 255, 255, ${m.opacity})`);
+            grad.addColorStop(0.4, `rgba(44, 103, 237, ${m.opacity * 0.8})`);
+            grad.addColorStop(1, 'transparent');
+
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(m.x, m.y);
+            ctx.lineTo(tailX, tailY);
+            ctx.stroke();
+          }
+
+          animationFrameId = requestAnimationFrame(render);
+        };
+        render();
+
+        return () => {
+          window.removeEventListener('resize', handleResize);
+          cancelAnimationFrame(animationFrameId);
+        };
+      }, []);
+
+      return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />;
+    }
+
+    // Main App Component
+    // Spanduk berjalan: strip A (kiri -> kanan) & strip B (kanan -> kiri), membentuk huruf X
+    function BannerStrip({ items, className }) {
+      const group = [...items, ...items, ...items];  // satu grup cukup panjang untuk menutupi layar
+      const renderGroup = (key) => (
+        <div key={key} className="flex items-center" aria-hidden={key !== 0}>
+          {group.map((text, i) => (
+            <React.Fragment key={i}>
+              <span className="banner-item">{text}</span>
+              <span className="banner-star">✦</span>
+            </React.Fragment>
+          ))}
+        </div>
+      );
+      return (
+        <div className={`banner-strip ${className}`}>
+          <div className="banner-track">
+            {renderGroup(0)}
+            {renderGroup(1)}
+          </div>
+        </div>
+      );
+    }
+
+    function CrossBanner() {
+      const topRow = ["Web Development", "Kolaborasi", "Networking", "Cyber Security", "Programming", "UI/UX Design"];
+      const bottomRow = ["React", "Tailwind CSS", "JavaScript", "Database SQL", "Cloud Computing", "Artificial Intelligence"];
+      return (
+        <div className="banner-stage" role="presentation">
+          <BannerStrip items={topRow} className="strip-a" />
+          <BannerStrip items={bottomRow} className="strip-b" />
+        </div>
+      );
+    }
+
+    function App() {
+      const [activeSection, setActiveSection] = useState('hero');
+      const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
+      const [currentText, setCurrentText] = useState('');
+      const [isDeleting, setIsDeleting] = useState(false);
+      const [portfolioTab, setPortfolioTab] = useState('projects');
+      const [aboutSubTab, setAboutSubTab] = useState('experience');
+      const [selectedProject, setSelectedProject] = useState(null);
+      const [copied, setCopied] = useState(false);
+      const [formSubmitted, setFormSubmitted] = useState(false);
+
+      const roles = personalInfo.roles;
+
+      // Typewriter effect
+      useEffect(() => {
+        const fullText = roles[currentRoleIndex];
+        const timer = setTimeout(() => {
+          if (!isDeleting) {
+            setCurrentText(fullText.substring(0, currentText.length + 1));
+            if (currentText === fullText) {
+              setTimeout(() => setIsDeleting(true), 1500);
+            }
+          } else {
+            setCurrentText(fullText.substring(0, currentText.length - 1));
+            if (currentText === '') {
+              setIsDeleting(false);
+              setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
+            }
+          }
+        }, isDeleting ? 40 : 100);
+        return () => clearTimeout(timer);
+      }, [currentText, isDeleting, currentRoleIndex]);
+
+      const scrollTo = (id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          const offset = 80;
+          const pos = el.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({ top: pos, behavior: 'smooth' });
+          setActiveSection(id);
+        }
+      };
+
+      const handleCopyEmail = () => {
+        navigator.clipboard.writeText(personalInfo.email);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
+
+      return (
+        <div className="relative min-h-screen bg-[#02040a] text-slate-100 selection:bg-[#2c67ed] selection:text-white">
+          <SpaceBackground />
+
+          {/* Floating Centered Navbar with Blue Glow */}
+          <header className="fixed top-5 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+            <nav className="pointer-events-auto flex items-center justify-between gap-4 md:gap-8 px-5 py-2.5 rounded-full bg-[#060b1e]/85 backdrop-blur-xl border border-[#2c67ed]/50 shadow-[0_0_25px_rgba(44,103,237,0.45),0_0_50px_rgba(0,210,255,0.15)] transition-all">
+              <button onClick={() => scrollTo('hero')} className="flex items-center gap-2 font-bold text-base md:text-lg text-white">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#00d2ff] animate-ping" />
+                Gangsar<span className="text-[#2c67ed]">.id</span>
+              </button>
+
+              <div className="flex items-center gap-1 md:gap-2">
+                {[
+                  { id: 'hero', label: 'Home' },
+                  { id: 'about', label: 'About Me' },
+                  { id: 'portfolio', label: 'Portfolio' },
+                  { id: 'contact', label: 'Contact' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => scrollTo(tab.id)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all ${
+                      activeSection === tab.id
+                        ? 'bg-gradient-to-r from-[#2c67ed] to-[#1d4fd8] text-white shadow-[0_0_15px_rgba(44,103,237,0.6)] border border-[#00d2ff]/40'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => scrollTo('contact')}
+                className="hidden sm:inline-flex px-4 py-1.5 rounded-full bg-gradient-to-r from-[#2c67ed] to-[#17358e] text-xs font-semibold uppercase tracking-wider text-white border border-[#00d2ff]/30 shadow-[0_0_15px_rgba(44,103,237,0.5)] hover:scale-105 transition-transform"
+              >
+                Connect
+              </button>
+            </nav>
+          </header>
+
+          {/* HERO SECTION */}
+          <section id="hero" className="relative min-h-screen flex items-center justify-center pt-28 pb-16 px-4 md:px-8 z-10 text-center">
+            <div className="max-w-4xl mx-auto">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0b1430]/90 border border-[#2c67ed]/50 shadow-[0_0_15px_rgba(44,103,237,0.4)] backdrop-blur-md mb-8 text-xs md:text-sm font-mono text-slate-300">
+                <span className="w-2 h-2 rounded-full bg-[#00d2ff] animate-ping" />
+                <span>WELCOME TO MY COSMIC SPACE</span>
+              </div>
+
+              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-white mb-6">
+                Halo, Saya{' '}
+                <span className="bg-gradient-to-r from-white via-[#8eb6fd] to-[#2c67ed] bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(44,103,237,0.6)]">
+                  {personalInfo.name}
+                </span>
+              </h1>
+
+              {/* Typewriter text */}
+              <div className="h-16 flex items-center justify-center mb-6">
+                <div className="text-xl sm:text-2xl md:text-4xl font-mono font-semibold text-slate-200">
+                  <span className="text-[#2c67ed] mr-2">&gt;</span>
+                  <span className="text-slate-300 mr-2">I am a</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] via-[#5990fb] to-[#2c67ed] underline decoration-[#2c67ed]/60 underline-offset-8">
+                    {currentText}
+                  </span>
+                  <span className="inline-block w-1 h-6 md:h-8 bg-[#00d2ff] ml-1 animate-pulse align-middle" />
+                </div>
+              </div>
+
+              <p className="text-slate-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-10 font-light">
+                {personalInfo.bio}
+              </p>
+
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <button
+                  onClick={() => scrollTo('portfolio')}
+                  className="px-8 py-3.5 rounded-full bg-gradient-to-r from-[#2c67ed] to-[#1d4fd8] text-white font-semibold shadow-[0_0_25px_rgba(44,103,237,0.7)] hover:shadow-[0_0_35px_rgba(0,210,255,0.7)] border border-[#00d2ff]/40 transition-all transform hover:-translate-y-0.5"
+                >
+                  🚀 Lihat Portfolio
+                </button>
+                <button
+                  onClick={() => scrollTo('contact')}
+                  className="px-7 py-3.5 rounded-full bg-[#060b1e]/80 hover:bg-[#0f1d47] text-slate-200 hover:text-white font-semibold border border-[#2c67ed]/40 hover:border-[#00d2ff]/60 shadow-[0_0_15px_rgba(44,103,237,0.2)] transition-all transform hover:-translate-y-0.5"
+                >
+                  ✉️ Hubungi Saya
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* SPANDUK MENYILANG */}
+          <CrossBanner />
+
+          {/* ABOUT ME SECTION */}
+          <section id="about" className="relative py-24 px-4 md:px-8 max-w-7xl mx-auto z-10">
+            <div className="text-center mb-16">
+              <span className="px-3.5 py-1.5 rounded-full bg-[#0b1430] border border-[#2c67ed]/40 text-xs font-mono uppercase tracking-widest text-[#00d2ff] mb-3 inline-block">
+                Biografi & Perjalanan
+              </span>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-white">
+                About <span className="bg-gradient-to-r from-[#00d2ff] to-[#2c67ed] bg-clip-text text-transparent">Me</span>
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-16">
+              <div className="lg:col-span-5 flex justify-center">
+                <div className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-3xl bg-[#060b1e] border-2 border-[#2c67ed]/60 p-3 shadow-[0_0_35px_rgba(44,103,237,0.4)]">
+                  <img
+                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80"
+                    alt={personalInfo.name}
+                    className="w-full h-full object-cover object-top rounded-2xl filter brightness-95"
+                  />
+                  <div className="absolute bottom-5 left-5 right-5 p-2 rounded-xl bg-[#060b1e]/90 border border-[#2c67ed]/40 flex items-center justify-between text-xs">
+                    <span className="text-emerald-400 flex items-center gap-1">● Active Developer</span>
+                    <span className="text-[#00d2ff] font-mono">ID 🇮🇩</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-7 space-y-6">
+                <div className="p-6 md:p-8 rounded-3xl bg-[#060b1e]/80 border border-[#2c67ed]/30 shadow-[0_0_20px_rgba(44,103,237,0.15)] backdrop-blur-xl">
+                  <h3 className="text-2xl font-bold text-white mb-3">Menghubungkan Ide & Kode Menjadi Solusi Digital</h3>
+                  <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-3">
+                    Halo! Saya <span className="text-[#00d2ff] font-semibold">{personalInfo.name}</span>, Junior Web Developer dengan passion mendalam di ekosistem web modern seperti React, Tailwind CSS, dan animasi interaktif yang elegan.
+                  </p>
+                  <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+                    Fokus saya adalah menciptakan pengalaman visual kosmik yang memukau dengan arsitektur kode yang bersih dan performa tinggi.
+                  </p>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {personalInfo.stats.map((s, i) => (
+                    <div key={i} className="p-4 rounded-2xl bg-[#060b1e]/90 border border-[#2c67ed]/30 text-center shadow-[0_0_12px_rgba(44,103,237,0.15)]">
+                      <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-white to-[#8eb6fd] bg-clip-text text-transparent block">
+                        {s.value}
+                      </span>
+                      <span className="text-xs text-slate-400 mt-1 block">{s.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Experience & Education Tabs */}
+            <div className="flex justify-center mb-6">
+              <div className="inline-flex p-1.5 rounded-2xl bg-[#060b1e]/80 border border-[#2c67ed]/40">
+                <button
+                  onClick={() => setAboutSubTab('experience')}
+                  className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all ${
+                    aboutSubTab === 'experience'
+                      ? 'bg-gradient-to-r from-[#2c67ed] to-[#1d4fd8] text-white shadow-[0_0_15px_rgba(44,103,237,0.6)]'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  💼 Pengalaman
+                </button>
+                <button
+                  onClick={() => setAboutSubTab('education')}
+                  className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all ${
+                    aboutSubTab === 'education'
+                      ? 'bg-gradient-to-r from-[#2c67ed] to-[#1d4fd8] text-white shadow-[0_0_15px_rgba(44,103,237,0.6)]'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🎓 Riwayat Pendidikan
+                </button>
+              </div>
+            </div>
+
+            <div className="max-w-4xl mx-auto space-y-4">
+              {aboutSubTab === 'experience'
+                ? personalInfo.experience.map((exp, idx) => (
+                    <div key={idx} className="p-6 rounded-2xl bg-[#060b1e]/75 border border-[#2c67ed]/30 shadow-[0_0_15px_rgba(44,103,237,0.15)]">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="text-lg font-bold text-white">{exp.role}</h4>
+                          <p className="text-sm text-[#8eb6fd]">{exp.company} &bull; <span className="text-slate-400">{exp.type}</span></p>
+                        </div>
+                        <span className="text-xs font-mono text-[#00d2ff] bg-[#2c67ed]/20 px-3 py-1 rounded-full">{exp.period}</span>
+                      </div>
+                      <p className="text-slate-300 text-sm mb-3">{exp.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {exp.technologies.map((t, i) => (
+                          <span key={i} className="px-2.5 py-0.5 rounded-lg bg-[#0b1430] border border-white/10 text-slate-300 text-xs font-mono">
+                            #{t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                : personalInfo.education.map((edu, idx) => (
+                    <div key={idx} className="p-6 rounded-2xl bg-[#060b1e]/75 border border-[#2c67ed]/30 shadow-[0_0_15px_rgba(44,103,237,0.15)]">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="text-lg font-bold text-white">{edu.degree}</h4>
+                          <p className="text-sm text-[#8eb6fd]">{edu.institution}</p>
+                        </div>
+                        <span className="text-xs font-mono text-[#00d2ff] bg-[#2c67ed]/20 px-3 py-1 rounded-full">{edu.period}</span>
+                      </div>
+                      <p className="text-slate-300 text-sm mb-3">{edu.description}</p>
+                      <div className="text-xs text-emerald-400 font-semibold bg-emerald-950/50 px-2.5 py-1 rounded-md inline-block">
+                        Capaian: {edu.gpa} &bull; {edu.highlight}
+                      </div>
+                    </div>
+                  ))}
+            </div>
+          </section>
+
+          {/* PORTFOLIO SECTION */}
+          <section id="portfolio" className="relative py-24 px-4 md:px-8 max-w-7xl mx-auto z-10">
+            <div className="text-center mb-12">
+              <span className="px-3.5 py-1.5 rounded-full bg-[#0b1430] border border-[#2c67ed]/40 text-xs font-mono uppercase tracking-widest text-[#00d2ff] mb-3 inline-block">
+                Karya & Kompetensi
+              </span>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-white">
+                Featured <span className="bg-gradient-to-r from-[#00d2ff] to-[#2c67ed] bg-clip-text text-transparent">Portfolio</span>
+              </h2>
+            </div>
+
+            {/* Main Tabs */}
+            <div className="flex justify-center mb-10">
+              <div className="inline-flex p-1.5 rounded-2xl bg-[#060b1e]/90 border border-[#2c67ed]/40 shadow-[0_0_20px_rgba(44,103,237,0.3)]">
+                {['projects', 'certificates', 'techstack'].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setPortfolioTab(tab)}
+                    className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold capitalize transition-all ${
+                      portfolioTab === tab
+                        ? 'bg-gradient-to-r from-[#2c67ed] to-[#1d4fd8] text-white shadow-[0_0_15px_rgba(44,103,237,0.6)]'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {tab === 'techstack' ? 'Tech Stack' : tab}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tab: Projects */}
+            {portfolioTab === 'projects' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {personalInfo.projects.map(p => (
+                  <div key={p.id} className="rounded-3xl bg-[#060b1e]/85 border border-[#2c67ed]/30 hover:border-[#00d2ff]/70 shadow-[0_0_20px_rgba(44,103,237,0.15)] hover:shadow-[0_0_30px_rgba(44,103,237,0.35)] transition-all overflow-hidden flex flex-col justify-between">
+                    <div>
+                      <div className="aspect-video w-full overflow-hidden relative">
+                        <img src={p.image} alt={p.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                        <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-[#060b1e]/90 border border-[#2c67ed]/50 text-[11px] font-mono text-[#00d2ff]">
+                          {p.category}
+                        </span>
+                      </div>
+                      <div className="p-6">
+                        <h3 className="text-xl font-bold text-white mb-2">{p.title}</h3>
+                        <p className="text-slate-400 text-sm leading-relaxed mb-4">{p.description}</p>
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                          {p.tags.map((t, idx) => (
+                            <span key={idx} className="px-2 py-0.5 rounded bg-[#0b1430] border border-[#2c67ed]/30 text-xs font-mono text-slate-300">
+                              #{t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="px-6 pb-6 pt-2 border-t border-white/5 flex justify-between items-center text-xs font-semibold">
+                      <a href={p.demoUrl} target="_blank" className="text-[#00d2ff] hover:underline">↗ Live Demo</a>
+                      <a href={p.githubUrl} target="_blank" className="text-slate-400 hover:text-white">GitHub Repo</a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Tab: Certificates */}
+            {portfolioTab === 'certificates' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                {personalInfo.certificates.map(c => (
+                  <div key={c.id} className="p-6 rounded-3xl bg-[#060b1e]/85 border border-[#2c67ed]/30 shadow-[0_0_20px_rgba(44,103,237,0.15)] flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="text-2xl">🏆</span>
+                        <span className="text-xs font-mono text-[#00d2ff] bg-[#2c67ed]/20 px-2 py-0.5 rounded-full">{c.issueDate}</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-1">{c.title}</h3>
+                      <p className="text-sm text-[#8eb6fd] mb-4">Penerbit: {c.issuer}</p>
+                      <div className="flex flex-wrap gap-1.5 mb-4">
+                        {c.skills.map((s, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded bg-[#0b1430] text-xs font-mono text-slate-300">
+                            ✓ {s}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="pt-3 border-t border-white/10 text-xs font-mono text-slate-400">
+                      ID: <span className="text-slate-200">{c.credentialId}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Tab: Tech Stack */}
+            {portfolioTab === 'techstack' && (
+              <div className="space-y-8 max-w-5xl mx-auto">
+                {personalInfo.techStack.map((cat, idx) => (
+                  <div key={idx} className="p-6 rounded-3xl bg-[#060b1e]/80 border border-[#2c67ed]/30 shadow-[0_0_20px_rgba(44,103,237,0.15)]">
+                    <h3 className="text-xl font-bold text-white mb-1">{cat.category}</h3>
+                    <p className="text-xs text-slate-400 mb-6">{cat.description}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {cat.items.map((tech, i) => (
+                        <div key={i} className="p-4 rounded-2xl bg-[#08112e]/70 border border-[#2c67ed]/20">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-semibold text-sm text-white">{tech.name}</span>
+                            <span className="text-xs font-mono text-[#00d2ff]">{tech.level}</span>
+                          </div>
+                          <div className="w-full bg-[#030712] rounded-full h-2 overflow-hidden border border-white/5">
+                            <div className="h-full rounded-full bg-gradient-to-r from-[#2c67ed] to-[#00d2ff]" style={{ width: `${tech.proficiency}%` }} />
+                          </div>
+                          <div className="text-right text-[10px] font-mono text-slate-400 mt-1">{tech.proficiency}%</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* CONTACT SECTION */}
+          <section id="contact" className="relative py-24 px-4 md:px-8 max-w-7xl mx-auto z-10">
+            <div className="text-center mb-16">
+              <span className="px-3.5 py-1.5 rounded-full bg-[#0b1430] border border-[#2c67ed]/40 text-xs font-mono uppercase tracking-widest text-[#00d2ff] mb-3 inline-block">
+                Koneksi & Sinyal
+              </span>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-white">
+                Contact <span className="bg-gradient-to-r from-[#00d2ff] to-[#2c67ed] bg-clip-text text-transparent">Me</span>
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-5xl mx-auto">
+              {/* Info */}
+              <div className="lg:col-span-5 space-y-4">
+                <div className="p-6 rounded-3xl bg-[#060b1e]/85 border border-[#2c67ed]/30 shadow-[0_0_20px_rgba(44,103,237,0.15)]">
+                  <h3 className="text-xl font-bold text-white mb-2">Mari Terhubung</h3>
+                  <p className="text-slate-400 text-sm mb-4 leading-relaxed">
+                    Punya ide proyek menarik atau ingin berkolaborasi? Jangan ragu untuk mengirim pesan!
+                  </p>
+                  <div className="p-3.5 rounded-xl bg-[#0b1430] border border-[#2c67ed]/30 flex items-center justify-between">
+                    <span className="text-xs text-white font-mono truncate">{personalInfo.email}</span>
+                    <button onClick={handleCopyEmail} className="px-3 py-1 bg-[#2c67ed]/30 hover:bg-[#2c67ed] text-[#00d2ff] hover:text-white rounded-lg text-xs font-semibold">
+                      {copied ? '✓ Copied' : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-6 rounded-3xl bg-[#060b1e]/85 border border-[#2c67ed]/30">
+                  <h4 className="text-xs font-mono uppercase text-slate-400 mb-3">Sosial Media</h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {Object.entries(personalInfo.socials).map(([key, url]) => (
+                      <a key={key} href={url} target="_blank" className="p-2.5 rounded-xl bg-[#0b1430] hover:bg-[#0e1b42] text-slate-300 hover:text-white capitalize border border-white/5">
+                        🌐 {key}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Form */}
+              <div className="lg:col-span-7">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setFormSubmitted(true);
+                    setTimeout(() => setFormSubmitted(false), 5000);
+                  }}
+                  className="p-6 sm:p-8 rounded-3xl bg-[#060b1e]/90 border border-[#2c67ed]/40 shadow-[0_0_30px_rgba(44,103,237,0.25)] space-y-4"
+                >
+                  <h3 className="text-2xl font-bold text-white mb-2">Kirim Pesan Kosmik</h3>
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-1">Nama Lengkap</label>
+                    <input required type="text" placeholder="Nama Anda" className="w-full px-4 py-2.5 rounded-xl bg-[#0b1430] border border-[#2c67ed]/30 text-white text-sm outline-none focus:border-[#00d2ff]" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-1">Email</label>
+                    <input required type="email" placeholder="email@domain.com" className="w-full px-4 py-2.5 rounded-xl bg-[#0b1430] border border-[#2c67ed]/30 text-white text-sm outline-none focus:border-[#00d2ff]" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-1">Pesan</label>
+                    <textarea required rows="4" placeholder="Tuliskan pesan Anda..." className="w-full px-4 py-2.5 rounded-xl bg-[#0b1430] border border-[#2c67ed]/30 text-white text-sm outline-none focus:border-[#00d2ff] resize-none"></textarea>
+                  </div>
+                  <button type="submit" className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#2c67ed] to-[#1d4fd8] text-white font-bold text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(44,103,237,0.6)] hover:shadow-[0_0_30px_rgba(0,210,255,0.6)] transition-all">
+                    🚀 Luncurkan Pesan
+                  </button>
+
+                  {formSubmitted && (
+                    <div className="p-3 rounded-xl bg-emerald-950/80 border border-emerald-500 text-emerald-300 text-xs text-center">
+                      ✓ Pesan Anda telah siap dikirimkan! Terima kasih.
+                    </div>
+                  )}
+                </form>
+              </div>
+            </div>
+          </section>
+
+          {/* FOOTER */}
+          <footer className="border-t border-[#2c67ed]/20 bg-[#030712] py-8 text-center text-xs text-slate-400">
+            <p className="font-semibold text-white mb-1">Gangsar.id &bull; Personal Portfolio</p>
+            <p className="font-mono text-[#8eb6fd]">React &bull; Tailwind CSS &bull; Framer Motion &bull; Space Edition</p>
+            <p className="text-[11px] text-slate-500 mt-3">&copy; {new Date().getFullYear()} Gangsar Wijaya. All rights reserved.</p>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
